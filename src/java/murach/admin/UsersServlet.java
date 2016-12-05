@@ -29,26 +29,40 @@ public class UsersServlet extends HttpServlet {
         if (action.equals("display_users")) {            
             // get list of users
             ArrayList<User> users = UserDB.selectUsers();            
-
-            // set as a request attribute
-            // forward to index.jsp
+            request.setAttribute("users", users);
         } 
         else if (action.equals("display_user")) {
-            // get user for specified email
-            // set as session attribute
-            // forward to user.jsp
+            String emailAddress = request.getParameter("email");
+            User user = UserDB.selectUser(emailAddress);
+            session.setAttribute("user", user);
+            url = "/user.jsp";
         }
         else if (action.equals("update_user")) {
-            // update user in database
-            // get current user list and set as request attribute
-            // forward to index.jsp
+            // get parameters from the request
+            String firstName = request.getParameter("firstName");
+            String lastName = request.getParameter("lastName");
+
+            // get and update user
+            User user = (User) session.getAttribute("user");        
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            UserDB.update(user);
+
+            // get and set updated users
+            ArrayList<User> users = UserDB.selectUsers();            
+            request.setAttribute("users", users);            
         }
         else if (action.equals("delete_user")) {
-            // get the user for the specified email
-            // delete the user            
-            // get current list of users
-            // set as request attribute
-            // forward to index.jsp
+            // get the user
+            String email = request.getParameter("email");
+            User user = UserDB.selectUser(email);
+            
+            // delte the user
+            UserDB.delete(user);
+            
+            // get and set updated users
+            ArrayList<User> users = UserDB.selectUsers();            
+            request.setAttribute("users", users);            
         }
         
         getServletContext()
@@ -61,5 +75,6 @@ public class UsersServlet extends HttpServlet {
             HttpServletResponse response)
             throws ServletException, IOException {
         doPost(request, response);
-    }    
+    }
+    
 }
